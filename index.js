@@ -8,7 +8,7 @@
 
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-
+const readline = require('readline');
 
 //Sugeneruoti netikra varda ir pavarde
 let randomName = faker.person.firstName();
@@ -24,7 +24,19 @@ let randomSurname = faker.person.lastName();
 //netikra gimimo data
 
 
+function jsonToCSV(jsonArray) {
+    //Primityvi ir labai paprasta
+    const csvHeader = Object.keys(jsonArray[0]).join(',') + '\n';
+    let csvRows = "";
+    
+    for (let i=0; i< jsonArray.length; i++) {
+        let csvRow = Object.values(jsonArray[i]).join(',') + '\n';
+        csvRows += csvRow;
+    }
 
+    return csvHeader + csvRows;
+
+}
 function generateUser() {
     return {
         "name": faker.person.firstName(),
@@ -66,25 +78,43 @@ function generateCompany() {
     }
 }
 
+
+//ziurek as nuskaitinesiu is terminalo duomenis
+
+const rl = readline.createInterface({
+    input:process.stdin,
+    output:process.stdout
+})
+
+rl.question("Kiek duomenu noretumete suvesti i kiekviena is duomenu failu? \n", (dataCount) => {
+    // console.log(dataCount);
+
+
+    
+
+
 //Susikurti daug(100 users) duomenu objektu
 
 // 11:08 - 11:18
 
 // isisaugoti duomenis i duomenu failus. json ir csv
 //lengvai pakeisti generuojamu duomenu kieki
-
-const users = Array.from({length: 100}, generateUser);
-const products = Array.from({length:100}, generateProduct );
-const categories = Array.from({length:100}, generateCategory );
-const toys = Array.from({length:100}, generateToy );
-const companies = Array.from({length:10}, generateCompany);
+//node index.js
+//Klausimas: kiek duomenu norite kad kiekviename faile butu?
+//10
+//Papildomai: kuriuos failus norit generuoti? users/products/categories/toys/companies
+const users = Array.from({length: dataCount}, generateUser);
+const products = Array.from({length:dataCount}, generateProduct );
+const categories = Array.from({length:dataCount}, generateCategory );
+const toys = Array.from({length:dataCount}, generateToy );
+const companies = Array.from({length:dataCount}, generateCompany);
 
 //users turim pasiversti i paprasta teksta
-fs.writeFileSync('users.json', JSON.stringify(users, null, 4));
-fs.writeFileSync('products.json', JSON.stringify(products, null, 4));
-fs.writeFileSync('categories.json', JSON.stringify(categories, null, 4));
-fs.writeFileSync('toys.json', JSON.stringify(toys, null, 4));
-fs.writeFileSync('companies.json', JSON.stringify(companies, null, 4));
+fs.writeFileSync('json/users.json', JSON.stringify(users, null, 4));
+fs.writeFileSync('json/products.json', JSON.stringify(products, null, 4));
+fs.writeFileSync('json/categories.json', JSON.stringify(categories, null, 4));
+fs.writeFileSync('json/toys.json', JSON.stringify(toys, null, 4));
+fs.writeFileSync('json/companies.json', JSON.stringify(companies, null, 4));
 
 // JSON
 // {
@@ -115,10 +145,15 @@ for (let i=0; i< users.length; i++) {
     csvRows += csvRow;
 }
 //irasau csvHeader ir viena csvRow
-fs.writeFileSync('users.csv', csvHeader + csvRows )
+fs.writeFileSync('csv/users.csv', jsonToCSV(users) );
+fs.writeFileSync('csv/products.csv', jsonToCSV(products) );
+fs.writeFileSync('csv/categories.csv', jsonToCSV(categories) );
+fs.writeFileSync('csv/toys.csv', jsonToCSV(toys) );
+fs.writeFileSync('csv/companies.csv', jsonToCSV(companies) );
 
 
-console.log(csvHeader)
+// console.log(csvHeader)
+console.log("Failai sugeneruoti su "+dataCount + " irasu")
 
 // console.log(users)
 // console.log(users.length)
@@ -146,4 +181,5 @@ console.log(csvHeader)
 // console.log(product);
 // console.log(category)
 // console.log(toy)
-
+rl.close();
+});
